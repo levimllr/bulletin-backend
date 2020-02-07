@@ -22,3 +22,7 @@ Things you may want to cover:
 * Deployment instructions
 
 * ...
+
+## Testing
+
+Use [ngrok](https://dashboard.ngrok.com/get-started) to make a local server public-facing. `ngrok http PORTNUMBER` is the command you'll want, which for this Rail API will look like `ngrok http 3001`.
