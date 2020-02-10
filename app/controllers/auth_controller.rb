@@ -1,4 +1,6 @@
 class AuthController < ApplicationController
+  
+  
   def begin
     # set OAuth scope of bot
     # for this demo, we're just using `bot` as it has access to all we need
@@ -6,9 +8,9 @@ class AuthController < ApplicationController
     bot_scope = 'bot'
 
     add_to_slack_button = "
-      <a href=\"https://slack.com/oauth/authorize?scope=#{bot_scope}&client_id=#{slack_config[:slack_client_id]}&redirect_uri=#{slack_config[:redirect_uri]}\">
-        <img alt=\"Add to Slack\" height=\"40\" width=\"139\" src=\"https://platform.slack-edge.com/img/add_to_slack.png\"/>
-      </a>"
+  <a href=\"https://slack.com/oauth/authorize?scope=#{bot_scope}&client_id=#{slack_config[:slack_client_id]}&redirect_uri=#{slack_config[:redirect_uri]}\">
+    <img alt=\"Add to Slack\" height=\"40\" width=\"139\" src=\"https://platform.slack-edge.com/img/add_to_slack.png\"/>
+  </a>"
 
     render html: add_to_slack_button.html_safe
   end
@@ -44,16 +46,22 @@ class AuthController < ApplicationController
           bot_id: response['bot']['bot_user_id']
         )
 
-        byebug
+        # byebug
 
         render body: "OAuth succeeded!"
 
     rescue Slack::Web::Api::Error => exception
-        # FAILURE
-        # let user know something went wrong
-        # status 403
-        byebug
-        render body: "Auth failed! Reason: #{exception.message}<br/>#{add_to_slack_button}"
+      bot_scope = 'bot'
+      add_to_slack_button = "
+        <a href=\"https://slack.com/oauth/authorize?scope=#{bot_scope}&client_id=#{slack_config[:slack_client_id]}&redirect_uri=#{slack_config[:redirect_uri]}\">
+          <img alt=\"Add to Slack\" height=\"40\" width=\"139\" src=\"https://platform.slack-edge.com/img/add_to_slack.png\"/>
+        </a>
+      "
+      # FAILURE
+      # let user know something went wrong
+      # status 403
+      # byebug
+      render body: "Auth failed! Reason: #{exception.message}<br/>#{add_to_slack_button}"
         
     end
   end
