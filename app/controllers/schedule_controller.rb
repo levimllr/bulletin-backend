@@ -12,7 +12,7 @@ class ScheduleController < ApplicationController
     Dotenv.load('.env')
     client = Slack::Web::Client.new(token: ENV['BOT_USER_OAUTH_ACCESS_TOKEN'])
 
-    byebug
+    # byebug
 
     client.chat_scheduleMessage(channel: params["channel_id"], text: params["text"], post_at: params["post_at"])
   end

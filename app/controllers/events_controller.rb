@@ -35,7 +35,7 @@ class EventsController < ApplicationController
                 workspace = Workspace.find_by(bot_id: bot_id)
 
                 if Workspace.bot_id?(bot_id)
-                  byebug
+                  # byebug
                   Channel.create(channel_id: channel_id, workspace_id: workspace.id)
                   client = Slack::Web::Client.new
                   puts  "######BOT######"
