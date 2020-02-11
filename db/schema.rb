@@ -10,22 +10,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_08_000623) do
+ActiveRecord::Schema.define(version: 2020_02_11_182846) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "channels", force: :cascade do |t|
     t.string "channel_id"
-    t.bigint "workplace_id"
+    t.bigint "workspace_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["workplace_id"], name: "index_channels_on_workplace_id"
+    t.index ["workspace_id"], name: "index_channels_on_workspace_id"
   end
 
-  create_table "workplaces", force: :cascade do |t|
-    t.string "team_name"
-    t.string "team_id"
+  create_table "workspaces", force: :cascade do |t|
+    t.string "name"
+    t.string "workspace_id"
     t.string "bot_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false

@@ -32,10 +32,11 @@ class EventsController < ApplicationController
 
                 bot_id = event_data['user']
                 channel_id = event_data['channel']
-                workplace = Workplace.find_by(bot_id: bot_id)
+                workspace = Workspace.find_by(bot_id: bot_id)
 
-                if Workplace.bot_id?(bot_id)
-                  Channel.create(channel_id: channel_id, workplace_id: workplace.id)
+                if Workspace.bot_id?(bot_id)
+                  byebug
+                  Channel.create(channel_id: channel_id, workspace_id: workspace.id)
                   client = Slack::Web::Client.new
                   puts  "######BOT######"
                   client.chat_postMessage(

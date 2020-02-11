@@ -39,14 +39,12 @@ class AuthController < ApplicationController
         }
 
         teams[team_id]['client'] = create_slack_client(response['bot']['bot_access_token'])
-        
-        Workplace.create(
-          team_id: team_id,
-          team_name: response['team_name'],
+
+        Workspace.create(
+          workspace_id: team_id,
+          name: response['team_name'],
           bot_id: response['bot']['bot_user_id']
         )
-
-        # byebug
 
         render body: "OAuth succeeded!"
 
