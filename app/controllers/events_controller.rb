@@ -37,13 +37,12 @@ class EventsController < ApplicationController
                 if Workspace.bot_id?(bot_id)
                   # byebug
                   Channel.create(channel_id: channel_id, workspace_id: workspace.id)
-                  client = Slack::Web::Client.new
+                  Dotenv.load('.env')
+                  client = Slack::Web::Client.new(token: ENV['BOT_USER_OAUTH_ACCESS_TOKEN'])
                   puts  "######BOT######"
                   client.chat_postMessage(
                     channel: channel_id,
-                    text: "Hello world! This channel's ID is #{channel_id}. \n 
-                      To set up your mass message schedule, make a copy of this Google sheet: \n 
-                      https://docs.google.com/spreadsheets/d/1FNN6pRAMpxZPdT4reFGSqo_2EPYo6W-X9wLFmuWbWYU/edit?usp=sharing"
+                    text: "Hello world! This channel's ID is *#{channel_id}*.\nTo set up your mass message schedule, make a copy of this Google sheet:\nhttps://docs.google.com/spreadsheets/d/1FNN6pRAMpxZPdT4reFGSqo_2EPYo6W-X9wLFmuWbWYU/edit?usp=sharing"
                   )
                 else 
                   puts '------not a bot------'

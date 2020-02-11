@@ -15,8 +15,14 @@ class ApplicationController < ActionController::API
       slack_client_id: ENV['SLACK_CLIENT_ID'],
       slack_api_secret: ENV['SLACK_API_SECRET'],
       slack_redirect_uri: ENV['SLACK_REDIRECT_URI'],
-      slack_verification_token: ENV['SLACK_VERIFICATION_TOKEN']
+      slack_verification_token: ENV['SLACK_VERIFICATION_TOKEN'],
+      slack_bot_user_oauth_access_token: ENV['BOT_USER_OAUTH_ACCESS_TOKEN']
     }
+  end
+
+  def bot_slack_client
+    bot_token = slack_config[:slack_bot_user_oauth_access_token]
+    Slack::Web::Client.new(token: bot_token)
   end
 
   # check to see if required vars listed above were provided, raise exception if missing
