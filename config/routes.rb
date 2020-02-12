@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   post 'schedule', to: 'schedule#create'
+  post 'commands', to: 'commands#create'
   get 'schedule/create'
   get 'schedule/show'
   post 'events', to: 'events#create'
