@@ -33,24 +33,60 @@ class CommandsController < ApplicationController
           channel: channel_id,
         )[:scheduled_messages].sort_by{ |msg| msg.post_at }
 
-        schedule_string_prefix = [
-          ":u6307: There are *#{scheduled_messages.length} messages* scheduled for channel *#{channel_id}*.",
-          ":u6708: Messages are scheduled between *#{format_unix_to_normal_time(scheduled_messages.first.post_at)}* and *#{format_unix_to_normal_time(scheduled_messages.last.post_at)}*:",
-          "```",
-          " # |    Local date, time    | Message ID",
-          "---|------------------------|-----------"
-        ]
+        if scheduled_messages.length > 0
 
-        schedule_string = scheduled_messages.map.with_index do |msg, idx| 
-          " #{idx + 1} | #{Time.at(msg.post_at).strftime("%Y-%m-%d %I:%M:%S %p")} | #{msg.id}"
+          schedule_string_prefix = [
+            ":u6307: There are *#{scheduled_messages.length} messages* scheduled for channel *#{channel_id}*.",
+            ":u6708: Messages are scheduled between *#{format_unix_to_normal_time(scheduled_messages.first.post_at)}* and *#{format_unix_to_normal_time(scheduled_messages.last.post_at)}*:",
+            "```",
+            " # |    Local date, time    | Message ID",
+            "---|------------------------|-----------"
+          ]
+
+          schedule_string = scheduled_messages.map.with_index do |msg, idx| 
+            " #{idx + 1} | #{Time.at(msg.post_at).strftime("%Y-%m-%d %I:%M:%S %p")} | #{msg.id}"
+          end
+
+          full_schedule_string = schedule_string_prefix.push(schedule_string).push("```").join("\n")
+
+        else
+
+          full_schedule_string = ":u6307: There are *_no_ messages* scheduled for channel *#{channel_id}*."
+
         end
-
-        full_schedule_string = schedule_string_prefix.push(schedule_string).push("```").join("\n")
 
         bot_slack_client.chat_postMessage(
           channel: channel_id,
           text: full_schedule_string
         )
+      when "delete"
+        case option
+        when "all"
+          
+        when nil
+          bot_slack_client.chat_postMessage(
+            channel: channel_id,
+            text: ":u7981: To delete messages, enter either `/bulletin delete all` or `/bulletin delete MESSAGE_ID`."
+          )
+        else
+          begin
+            resp = bot_slack_client.chat_deleteScheduledMessage(
+              channel: channel_id,
+              scheduled_message_id: option
+            )
+          rescue => exception
+            bot_slack_client.chat_postMessage(
+              channel: channel_id,
+              text: ":u6e80: No message with the id *#{option}* found!"
+            )
+
+          else
+            bot_slack_client.chat_postMessage(
+              channel: channel_id,
+              text: ":u7a7a: The message with the id *#{option}* was successfully deleted!"
+            )
+          end
+        end
       else
         bot_slack_client.chat_postMessage(
           channel: channel_id,
