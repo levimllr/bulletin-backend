@@ -26,3 +26,8 @@ Things you may want to cover:
 ## Testing
 
 Use [ngrok](https://dashboard.ngrok.com/get-started) to make a local server public-facing. `ngrok http PORTNUMBER` is the command you'll want, which for this Rail API will look like `ngrok http 3001`.
+
+## Resources
+
+- Time
+  - [Invalid Time.zone timezone](https://stackoverflow.com/questions/31565999/invalid-timezone)
