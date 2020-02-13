@@ -28,22 +28,20 @@ class CommandsController < ApplicationController
         )
       when "schedule"
         channel_name = params["channel_name"]
-        
-        scheduled_messages = bot_slack_client.chat_scheduledMessages_list(
-          channel: channel_id,
-        )[:scheduled_messages].sort_by{ |msg| msg.post_at }
+  
+        messages = scheduled_messages(channel_id)
 
-        if scheduled_messages.length > 0
+        if messages.length > 0
 
           schedule_string_prefix = [
-            ":u6307: There are *#{scheduled_messages.length} messages* scheduled for channel *#{channel_id}*.",
-            ":u6708: Messages are scheduled between *#{format_unix_to_normal_time(scheduled_messages.first.post_at)}* and *#{format_unix_to_normal_time(scheduled_messages.last.post_at)}*:",
+            ":u6307: There are *#{messages.length} messages* scheduled for channel *#{channel_id}*.",
+            ":u6708: Messages are scheduled between *#{format_unix_to_normal_time(messages.first.post_at)}* and *#{format_unix_to_normal_time(messages.last.post_at)}*:",
             "```",
             " # |    Local date, time    | Message ID",
             "---|------------------------|-----------"
           ]
 
-          schedule_string = scheduled_messages.map.with_index do |msg, idx| 
+          schedule_string = messages.map.with_index do |msg, idx| 
             " #{idx + 1} | #{Time.at(msg.post_at).strftime("%Y-%m-%d %I:%M:%S %p")} | #{msg.id}"
           end
 
@@ -62,7 +60,22 @@ class CommandsController < ApplicationController
       when "delete"
         case option
         when "all"
-          
+          message_ids = scheduled_messages(channel_id).map{|msg| msg.id}
+          begin
+            message_ids.each do |msg_id|
+              delete_message(msg_id, channel_id)
+            end
+          rescue => exception
+            bot_slack_client.chat_postMessage(
+              channel: channel_id,
+              text: ":u6e80: There's been an error deleting all messages!"
+            )
+          else
+            bot_slack_client.chat_postMessage(
+              channel: channel_id,
+              text: ":congratulations: *All #{message_ids.length} schedules messages were successfully deleted!*"
+            )
+          end
         when nil
           bot_slack_client.chat_postMessage(
             channel: channel_id,
@@ -70,10 +83,7 @@ class CommandsController < ApplicationController
           )
         else
           begin
-            resp = bot_slack_client.chat_deleteScheduledMessage(
-              channel: channel_id,
-              scheduled_message_id: option
-            )
+            delete_message(option, channel_id)
           rescue => exception
             bot_slack_client.chat_postMessage(
               channel: channel_id,
@@ -94,5 +104,20 @@ class CommandsController < ApplicationController
         )
       end 
     end
+  end
+
+  private
+
+  def scheduled_messages(channel_id)
+    bot_slack_client.chat_scheduledMessages_list(
+      channel: channel_id,
+    )[:scheduled_messages].sort_by{ |msg| msg.post_at }
+  end
+
+  def delete_message(msg_id, channel_id)
+    bot_slack_client.chat_deleteScheduledMessage(
+      channel: channel_id,
+      scheduled_message_id: msg_id
+    )
   end
 end
