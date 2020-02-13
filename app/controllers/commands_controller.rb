@@ -12,15 +12,15 @@ class CommandsController < ApplicationController
 
       case command
       when "intro"
-        intro_note = ":u55b6: Hello world!\n:id: This channel's ID is *#{channel_id}*.\n:hash:To set up your mass message schedule, make a copy of this Google sheet:\n#{sheet_link}"
+        intro_note = ":koko: Hello world!\n:u7533: This channel's ID is *#{channel_id}*.\n:sa: To set up your mass message schedule, make a copy of this Google sheet:\n#{sheet_link}"
         notify(intro_note, channel_id)
 
       when "channel"
-        channel_info_note = ":id: #{channel_name}'s channel ID is *#{channel_id}*."
+        channel_info_note = ":u7533: #{channel_name}'s channel ID is *#{channel_id}*."
         notify(channel_info_note, channel_id)
 
       when "sheet"
-        sheet_info_note = ":hash: To set up your mass message schedule, make a copy of this Google sheet:\n#{sheet_link}"
+        sheet_info_note = ":sa: To set up your mass message schedule, make a copy of this Google sheet:\n#{sheet_link}"
         notify(sheet_info_note, channel_id)
 
       when "schedule"
