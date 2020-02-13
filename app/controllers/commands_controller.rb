@@ -12,53 +12,23 @@ class CommandsController < ApplicationController
 
       case command
       when "intro"
-        bot_slack_client.chat_postMessage(
-          channel: channel_id,
-          text: ":u55b6: Hello world!\n:id: This channel's ID is *#{channel_id}*.\n:hash:To set up your mass message schedule, make a copy of this Google sheet:\n#{sheet_link}"
-        )
+        intro_note = ":u55b6: Hello world!\n:id: This channel's ID is *#{channel_id}*.\n:hash:To set up your mass message schedule, make a copy of this Google sheet:\n#{sheet_link}"
+        notify(intro_note, channel_id)
+
       when "channel"
-        channel_name = params["channel_name"]
-        bot_slack_client.chat_postMessage(
-          channel: channel_id,
-          text: ":id: #{channel_name}'s channel ID is *#{channel_id}*."
-        )
+        channel_info_note = ":id: #{channel_name}'s channel ID is *#{channel_id}*."
+        notify(channel_info_note, channel_id)
+
       when "sheet"
-        channel_name = params["channel_name"]
-        bot_slack_client.chat_postMessage(
-          channel: channel_id,
-          text: ":hash: To set up your mass message schedule, make a copy of this Google sheet:\n#{sheet_link}"
-        )
+        sheet_info_note = ":hash: To set up your mass message schedule, make a copy of this Google sheet:\n#{sheet_link}"
+        notify(sheet_info_note, channel_id)
+
       when "schedule"
         channel_name = params["channel_name"]
-  
         messages = scheduled_messages(channel_id)
+        full_schedule_note = format_schedule_message(messages, channel_name, channel_id)
+        notify(full_schedule_note, channel_id)
 
-        if messages.length > 0
-
-          schedule_string_prefix = [
-            ":u6307: There are *#{messages.length} messages* scheduled for channel *#{channel_id}*.",
-            ":u6708: Messages are scheduled between *#{format_unix_to_normal_time(messages.first.post_at)}* and *#{format_unix_to_normal_time(messages.last.post_at)}*:",
-            "```",
-            " # |    Local date, time    | Message ID",
-            "---|------------------------|-----------"
-          ]
-
-          schedule_string = messages.map.with_index do |msg, idx| 
-            " #{idx + 1} | #{Time.at(msg.post_at).strftime("%Y-%m-%d %I:%M:%S %p")} | #{msg.id}"
-          end
-
-          full_schedule_string = schedule_string_prefix.push(schedule_string).push("```").join("\n")
-
-        else
-
-          full_schedule_string = ":u6307: There are *_no_ messages* scheduled for channel *#{channel_id}*."
-
-        end
-
-        bot_slack_client.chat_postMessage(
-          channel: channel_id,
-          text: full_schedule_string
-        )
       when "delete"
         case option
         when "all"
@@ -66,64 +36,53 @@ class CommandsController < ApplicationController
           begin
             delete_messages(messages, channel_id)
           rescue => exception
-            bot_slack_client.chat_postMessage(
-              channel: channel_id,
-              text: ":u6e80: There's been an error deleting all messages!"
-            )
+            delete_all_error_note = ":u6e80: *ERROR DELETING ALL MESSAGES ```#{exception}```"
+            notify(delete_all_error_note, channel_id)
           else
-            bot_slack_client.chat_postMessage(
-              channel: channel_id,
-              text: ":congratulations: *All #{message_ids.length} scheduled messages were successfully deleted!*"
-            )
+            delete_all_success_note = ":congratulations: *All #{message_ids.length} scheduled messages were successfully deleted!*"
+            notify(delete_all_success_note, channel_id)
           end
-        when "from"
+        when "from", "to"
           begin
             date = Date.parse(modifier).to_time.to_i
-            range = scheduled_messages(channel_id).select{|msg| msg.post_at >= date}
+            if option == "from"
+              range = scheduled_messages(channel_id).select{|msg| msg.post_at >= date}
+              preps = "_on and after_"
+            elsif option == "to"
+              range = scheduled_messages(channel_id).select{|msg| msg.post_at < date}
+              preps = "_up to_"
+            end
             delete_messages(range, channel_id)
-            notification = ":congratulations: All *#{range.length}* scheduled messages _on and after_ *#{modifier}* were successfully deleted!*"
+            notification = ":congratulations: All *#{range.length}* scheduled messages #{preps} *#{modifier}* were successfully deleted!"
             notify(notification, channel_id)
           rescue => exception
-            notification = ":u6e80: *ERROR* ```#{exception}```"
+            notification = ":u6e80: *ERROR DELETING MESSAGES WITH DATE #{date}* ```#{exception}```"
             notify(notification, channel_id)
           end
-        when "to"
-          begin
-            date = Date.parse(modifier).to_time.to_i
-            range = scheduled_messages(channel_id).select{|msg| msg.post_at < date}
-            delete_messages(range, channel_id)
-            notification = ":congratulations: All *#{range.length}* scheduled messages _before_ *#{modifier}* were successfully deleted!"
-            notify(notification, channel_id)
-          rescue => exception
-            notification = ":u6e80: *ERROR* ```#{exception}```"
-            notify(notification, channel_id)
-          end
+        
         when nil
-          bot_slack_client.chat_postMessage(
-            channel: channel_id,
-            text: ":u7981: To delete messages, enter either `/bulletin delete all` or `/bulletin delete MESSAGE_ID`."
-          )
+          invalid_delete_note = ":u7981: To delete messages, enter either `/bulletin delete MESSAGE_ID`, `/bulletin delete to|from DATE`, or `/bulletin delete all`."
+          notify(invalid_delete_note, channel_id)
+
         else
           begin
             delete_message(option, channel_id)
+
           rescue => exception
-            bot_slack_client.chat_postMessage(
-              channel: channel_id,
-              text: ":u6e80: No message with the id *#{option}* found!"
-            )
+            invalid_id_note = ":u6e80: *ERROR: NO MESSAGE WITH THE ID #{option} FOUND!* ```#{exception}```"
+            notify(invalid_id_note, channel_id)
 
           else
-            bot_slack_client.chat_postMessage(
-              channel: channel_id,
-              text: ":u7a7a: The message with the id *#{option}* was successfully deleted!"
-            )
+            valid_delete_note = ":u7a7a: The message with the id *#{option}* was successfully deleted!"
+            notify(valid_delete_note, channel_id)
+
           end
         end
+
       else
-        bot_slack_client.chat_postMessage(
-          channel: channel_id,
-          text: ":sos: Invalid command! Type `/bulletin` or click on my icon see options." 
-        )
+        invalid_command_note = ":u7981: Invalid command! Type `/bulletin` or click on my icon see options."
+        notify(invalid_command_note, channel_id)
+
       end 
     end
   end
@@ -135,6 +94,27 @@ class CommandsController < ApplicationController
       channel: channel_id,
       text: text
     )
+  end
+
+  def format_schedule_message(messages, channel_name, channel_id)
+    if messages.length > 0
+      schedule_string_prefix = [
+        ":u6307: There are *#{messages.length} messages* scheduled for *#{channel_name}* channel *#{channel_id}*.",
+        ":u6708: Messages are scheduled between *#{format_unix_to_normal_time(messages.first.post_at)}* and *#{format_unix_to_normal_time(messages.last.post_at)}*:",
+        "```",
+        " # |    Local date, time    | Message ID",
+        "---|------------------------|-----------"
+      ]
+      schedule_string = messages.map.with_index do |msg, idx| 
+        " #{idx + 1} | #{Time.at(msg.post_at).strftime("%Y-%m-%d %I:%M:%S %p")} | #{msg.id}"
+      end
+
+      full_schedule_note = schedule_string_prefix.push(schedule_string).push("```").join("\n")
+    
+    else
+      full_schedule_note = ":u6307: There are *_no_ messages* scheduled for channel *#{channel_id}*."
+    
+    end
   end
 
   def scheduled_messages(channel_id)
