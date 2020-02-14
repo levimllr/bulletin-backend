@@ -1,10 +1,13 @@
 class CommandsController < ApplicationController
   def create
 
+    byebug
+
     sheet_link = "https://docs.google.com/spreadsheets/d/1FNN6pRAMpxZPdT4reFGSqo_2EPYo6W-X9wLFmuWbWYU/edit?usp=sharing"
 
     if params["command"] == "/bulletin"
       channel_id = params["channel_id"]
+      channel_name = params["channel_name"]
       full_command = params["text"].split(" ")
       command = full_command[0]
       option = full_command[1]
@@ -24,7 +27,6 @@ class CommandsController < ApplicationController
         notify(sheet_info_note, channel_id)
 
       when "schedule"
-        channel_name = params["channel_name"]
         messages = scheduled_messages(channel_id)
         full_schedule_note = format_schedule_message(messages, channel_name, channel_id)
         notify(full_schedule_note, channel_id)
@@ -39,7 +41,7 @@ class CommandsController < ApplicationController
             delete_all_error_note = ":u6e80: *ERROR DELETING ALL MESSAGES ```#{exception}```"
             notify(delete_all_error_note, channel_id)
           else
-            delete_all_success_note = ":congratulations: *All #{message_ids.length} scheduled messages were successfully deleted!*"
+            delete_all_success_note = ":congratulations: *All #{messages.length} scheduled messages were successfully deleted!*"
             notify(delete_all_success_note, channel_id)
           end
         when "from", "to"
@@ -102,10 +104,10 @@ class CommandsController < ApplicationController
         ":u6307: There are *#{messages.length} messages* scheduled for *#{channel_name}* channel *#{channel_id}*.",
         ":u6708: Messages are scheduled between *#{format_unix_to_normal_time(messages.first.post_at)}* and *#{format_unix_to_normal_time(messages.last.post_at)}*:",
         "```",
-        " # |    Local date, time    | Message ID",
-        "---|------------------------|-----------"
+        " ## |    Local date, time    | Message ID",
+        "----|------------------------|-----------"
       ]
-      schedule_string = messages.map.with_index do |msg, idx| 
+      schedule_string = messages.map.with_index do |msg, idx|
         " #{idx + 1} | #{Time.at(msg.post_at).strftime("%Y-%m-%d %I:%M:%S %p")} | #{msg.id}"
       end
 
