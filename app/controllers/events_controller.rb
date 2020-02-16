@@ -3,7 +3,6 @@ class EventsController < ApplicationController
   end
 
   def create
-    # byebug
     
     case params['type']
       when 'url_verification'
@@ -35,7 +34,6 @@ class EventsController < ApplicationController
                 workspace = Workspace.find_by(bot_id: bot_id)
 
                 if Workspace.bot_id?(bot_id)
-                  # byebug
                   Channel.create(channel_id: channel_id, workspace_id: workspace.id)
                   Dotenv.load('.env')
                   client = Slack::Web::Client.new(token: ENV['BOT_USER_OAUTH_ACCESS_TOKEN'])

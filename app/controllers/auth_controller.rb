@@ -58,7 +58,6 @@ class AuthController < ApplicationController
       # FAILURE
       # let user know something went wrong
       # status 403
-      # byebug
       render body: "Auth failed! Reason: #{exception.message}<br/>#{add_to_slack_button}"
         
     end

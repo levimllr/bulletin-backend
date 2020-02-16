@@ -1,8 +1,6 @@
 class CommandsController < ApplicationController
   def create
 
-    byebug
-
     sheet_link = "https://docs.google.com/spreadsheets/d/1FNN6pRAMpxZPdT4reFGSqo_2EPYo6W-X9wLFmuWbWYU/edit?usp=sharing"
 
     if params["command"] == "/bulletin"
