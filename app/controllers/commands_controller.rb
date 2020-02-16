@@ -87,13 +87,6 @@ class CommandsController < ApplicationController
 
   private
 
-  def notify(text, channel_id)
-    bot_slack_client.chat_postMessage(
-      channel: channel_id,
-      text: text
-    )
-  end
-
   def format_schedule_message(messages, channel_name, channel_id)
     if messages.length > 0
       schedule_string_prefix = [
