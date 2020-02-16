@@ -1,8 +1,6 @@
 class CommandsController < ApplicationController
   def create
 
-    sheet_link = "https://docs.google.com/spreadsheets/d/1FNN6pRAMpxZPdT4reFGSqo_2EPYo6W-X9wLFmuWbWYU/edit?usp=sharing"
-
     if params["command"] == "/bulletin"
       channel_id = params["channel_id"]
       channel_name = params["channel_name"]
@@ -13,7 +11,7 @@ class CommandsController < ApplicationController
 
       case command
       when "intro"
-        intro_note = ":koko: Hello world!\n:u7533: This channel's ID is *#{channel_id}*.\n:sa: To set up your mass message schedule, make a copy of this Google sheet:\n#{sheet_link}"
+        intro_note = ":koko: Hello world!\n:u7533: This channel's ID is *#{channel_id}*.\n:sa: To set up your mass message schedule, make a copy of this Google sheet:\n#{@@sheet_link}"
         notify(intro_note, channel_id)
 
       when "channel"
@@ -21,7 +19,7 @@ class CommandsController < ApplicationController
         notify(channel_info_note, channel_id)
 
       when "sheet"
-        sheet_info_note = ":sa: To set up your mass message schedule, make a copy of this Google sheet:\n#{sheet_link}"
+        sheet_info_note = ":sa: To set up your mass message schedule, make a copy of this Google sheet:\n#{@@sheet_link}"
         notify(sheet_info_note, channel_id)
 
       when "schedule"

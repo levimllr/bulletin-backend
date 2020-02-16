@@ -1,4 +1,7 @@
 class ApplicationController < ActionController::API
+  # link to the Google sheet interface for message data and scheduling
+  @@sheet_link = "https://docs.google.com/spreadsheets/d/1FNN6pRAMpxZPdT4reFGSqo_2EPYo6W-X9wLFmuWbWYU/edit?usp=sharing"
+
   # this helper keeps all logic in one place for creating Slack client objects for each team
   def create_slack_client(slack_api_secret)
     Slack.configure do |config|

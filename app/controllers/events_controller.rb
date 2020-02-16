@@ -40,7 +40,7 @@ class EventsController < ApplicationController
                   puts  "######BOT######"
                   client.chat_postMessage(
                     channel: channel_id,
-                    text: ":u55b6: Hello world!\n:id: This channel's ID is *#{channel_id}*.\n:hash: To set up your mass message schedule, make a copy of this Google sheet:\n#{sheet_link}"
+                    text: ":u55b6: Hello world!\n:id: This channel's ID is *#{channel_id}*.\n:hash: To set up your mass message schedule, make a copy of this Google sheet:\n#{@@sheet_link}"
                     )
                 else 
                   puts '------not a bot------'

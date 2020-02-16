@@ -51,6 +51,6 @@ Rails.application.configure do
   config.file_watcher = ActiveSupport::EventedFileUpdateChecker
 
   # Add ngrok host alias
-  config.hosts << "40694b91.ngrok.io"
+  config.hosts << "1eec2ac2.ngrok.io"
 
 end
