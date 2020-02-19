@@ -34,7 +34,7 @@ class CommandsController < ApplicationController
           begin
             delete_messages(messages, channel_id)
           rescue => exception
-            delete_all_error_note = ":u6e80: *ERROR DELETING ALL MESSAGES ```#{exception}```"
+            delete_all_error_note = ":u6e80: *ERROR DELETING ALL MESSAGES* ```#{exception}```"
             notify(delete_all_error_note, channel_id)
           else
             delete_all_success_note = ":congratulations: *All #{messages.length} scheduled messages were successfully deleted!*"
