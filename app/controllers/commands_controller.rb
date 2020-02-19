@@ -1,7 +1,14 @@
+# this controller handles all slash commands made from Slack
+# slash commands must also be configured in the Slack app dashboard
 class CommandsController < ApplicationController
+
+  # since a post request is made of /commands, we call the create controller action
   def create
 
+    # only recognize command if it starts with /bulletin
     if params["command"] == "/bulletin"
+
+      # standard info to harvest across almost all commands (except for option and modifer)
       channel_id = params["channel_id"]
       user_id = params["user_id"]
       channel_name = params["channel_name"]
@@ -10,6 +17,7 @@ class CommandsController < ApplicationController
       option = full_command[1]
       modifier = full_command[2]
 
+      # handle different commands, such as '/bulletin intro' or '/bulletin delete all'
       case command
       when "intro"
         intro_note = ":koko: Hello world!\n:u7533: This channel's ID is *#{channel_id}*.\n:sa: To set up your mass message schedule, make a copy of this Google sheet:\n#{@@sheet_link}"
@@ -33,7 +41,7 @@ class CommandsController < ApplicationController
         when "all"
           messages = scheduled_messages(channel_id)
           begin
-            delete_messages(messages, channel_id)
+            delete_channel_messages(messages, channel_id)
           rescue => exception
             delete_all_error_note = ":u6e80: *ERROR DELETING ALL MESSAGES* ```#{exception}```"
             notify_user(delete_all_error_note, channel_id, user_id)
@@ -51,7 +59,7 @@ class CommandsController < ApplicationController
               range = scheduled_messages(channel_id).select{|msg| msg.post_at < date}
               preps = "_up to_"
             end
-            delete_messages(range, channel_id)
+            delete_channel_messages(range, channel_id)
             notification = ":congratulations: All *#{range.length}* scheduled messages #{preps} *#{modifier}* were successfully deleted!"
             notify_user(notification, channel_id, user_id)
           rescue => exception
@@ -88,6 +96,7 @@ class CommandsController < ApplicationController
 
   private
 
+  # helper method for formating the schedule message
   def format_schedule_message(messages, channel_name, channel_id)
     if messages.length > 0
       schedule_string_prefix = [
@@ -109,12 +118,14 @@ class CommandsController < ApplicationController
     end
   end
 
+  # gets all scheduled messages for a channel
   def scheduled_messages(channel_id)
     bot_slack_client.chat_scheduledMessages_list(
       channel: channel_id,
     )[:scheduled_messages].sort_by{ |msg| msg.post_at }
   end
 
+  # deletes a message scheduled for a channel
   def delete_message(msg_id, channel_id)
     bot_slack_client.chat_deleteScheduledMessage(
       channel: channel_id,
@@ -122,7 +133,8 @@ class CommandsController < ApplicationController
     )
   end
 
-  def delete_messages(messages, channel_id)
+  # deletes ALL messages scheduled for achannel
+  def delete_channel_messages(messages, channel_id)
     message_ids = messages.map{ |msg| msg.id }
     message_ids.each do |id|
       delete_message(id, channel_id)

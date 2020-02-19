@@ -2,7 +2,7 @@ class ApplicationController < ActionController::API
   # link to the Google sheet interface for message data and scheduling
   @@sheet_link = "https://docs.google.com/spreadsheets/d/1FNN6pRAMpxZPdT4reFGSqo_2EPYo6W-X9wLFmuWbWYU/edit?usp=sharing"
 
-  # this helper posts a message to a channel
+  # this helper posts a message to a channel, visible to all
   def notify_channel(text, channel_id)
     bot_slack_client.chat_postMessage(
       channel: channel_id,
@@ -10,7 +10,7 @@ class ApplicationController < ActionController::API
     )
   end
 
-  # this helper posts a message to a user
+  # this helper posts a message to a channel, visible only to user which prompted it
   def notify_user(text, channel_id, user_id)
     bot_slack_client.chat_postEphemeral(
       channel: channel_id,
@@ -54,6 +54,10 @@ class ApplicationController < ActionController::API
     end
   end
 
+  # format a UNIX timestamp into a "normal" timestamp
+  # the standard native timezones are amended with what a user might enter,
+  # like PST, MST, CST, and EST for continental USA times.
+  # why these acronyms aren't recognized natively is beyond me
   def format_unix_to_normal_time(unix_time, time_zone = "PST")
     native_timezones = {
       "International Date Line West"=>"Pacific/Midway",

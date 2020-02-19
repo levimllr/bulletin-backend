@@ -1,3 +1,5 @@
+# this controller handles the events of being 
+# verified by the Slack app dashboard and added to a channel
 class EventsController < ApplicationController
   def index
   end
@@ -33,6 +35,7 @@ class EventsController < ApplicationController
                 channel_id = event_data['channel']
                 workspace = Workspace.find_by(bot_id: bot_id)
 
+                # check to see if the member which joined a channel is this app's bot
                 if Workspace.bot_id?(bot_id)
                   Channel.create(channel_id: channel_id, workspace_id: workspace.id)
                   Dotenv.load('.env')

@@ -1,5 +1,7 @@
+# the contents of this controller are largely inspired by 
+# the Slack Ruby Onboarding tutorial: https://github.com/slackapi/Slack-Ruby-Onboarding-Tutorial
+# this controller handles authorizing the app for addition to a workspace
 class AuthController < ApplicationController
-  
   
   def begin
     # set OAuth scope of bot

@@ -70,5 +70,7 @@ Use [ngrok](https://dashboard.ngrok.com/get-started) to make a local server publ
 
 ## 📚 Resources
 
+- Slack + Ruby
+  - [Slack Ruby Onboarding Tutorial](https://github.com/slackapi/Slack-Ruby-Onboarding-Tutorial)
 - Time
   - [Invalid Time.zone timezone](https://stackoverflow.com/questions/31565999/invalid-timezone)
