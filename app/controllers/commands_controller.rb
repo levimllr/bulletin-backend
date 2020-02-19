@@ -3,6 +3,7 @@ class CommandsController < ApplicationController
 
     if params["command"] == "/bulletin"
       channel_id = params["channel_id"]
+      user_id = params["user_id"]
       channel_name = params["channel_name"]
       full_command = params["text"].split(" ")
       command = full_command[0]
@@ -12,20 +13,20 @@ class CommandsController < ApplicationController
       case command
       when "intro"
         intro_note = ":koko: Hello world!\n:u7533: This channel's ID is *#{channel_id}*.\n:sa: To set up your mass message schedule, make a copy of this Google sheet:\n#{@@sheet_link}"
-        notify(intro_note, channel_id)
+        notify_user(intro_note, channel_id, user_id)
 
       when "channel"
         channel_info_note = ":u7533: #{channel_name}'s channel ID is *#{channel_id}*."
-        notify(channel_info_note, channel_id)
+        notify_user(channel_info_note, channel_id, user_id)
 
       when "sheet"
         sheet_info_note = ":sa: To set up your mass message schedule, make a copy of this Google sheet:\n#{@@sheet_link}"
-        notify(sheet_info_note, channel_id)
+        notify_user(sheet_info_note, channel_id, user_id)
 
       when "schedule"
         messages = scheduled_messages(channel_id)
         full_schedule_note = format_schedule_message(messages, channel_name, channel_id)
-        notify(full_schedule_note, channel_id)
+        notify_user(full_schedule_note, channel_id, user_id)
 
       when "delete"
         case option
@@ -35,10 +36,10 @@ class CommandsController < ApplicationController
             delete_messages(messages, channel_id)
           rescue => exception
             delete_all_error_note = ":u6e80: *ERROR DELETING ALL MESSAGES* ```#{exception}```"
-            notify(delete_all_error_note, channel_id)
+            notify_user(delete_all_error_note, channel_id, user_id)
           else
             delete_all_success_note = ":congratulations: *All #{messages.length} scheduled messages were successfully deleted!*"
-            notify(delete_all_success_note, channel_id)
+            notify_user(delete_all_success_note, channel_id, user_id)
           end
         when "from", "to"
           begin
@@ -52,15 +53,15 @@ class CommandsController < ApplicationController
             end
             delete_messages(range, channel_id)
             notification = ":congratulations: All *#{range.length}* scheduled messages #{preps} *#{modifier}* were successfully deleted!"
-            notify(notification, channel_id)
+            notify_user(notification, channel_id, user_id)
           rescue => exception
             notification = ":u6e80: *ERROR DELETING MESSAGES WITH DATE #{date}* ```#{exception}```"
-            notify(notification, channel_id)
+            notify_user(notification, channel_id, user_id)
           end
         
         when nil
           invalid_delete_note = ":u7981: To delete messages, enter either `/bulletin delete MESSAGE_ID`, `/bulletin delete to|from DATE`, or `/bulletin delete all`."
-          notify(invalid_delete_note, channel_id)
+          notify_user(invalid_delete_note, channel_id, user_id)
 
         else
           begin
@@ -68,18 +69,18 @@ class CommandsController < ApplicationController
 
           rescue => exception
             invalid_id_note = ":u6e80: *ERROR: NO MESSAGE WITH THE ID #{option} FOUND!* ```#{exception}```"
-            notify(invalid_id_note, channel_id)
+            notify_user(invalid_id_note, channel_id, user_id)
 
           else
             valid_delete_note = ":u7a7a: The message with the id *#{option}* was successfully deleted!"
-            notify(valid_delete_note, channel_id)
+            notify_user(valid_delete_note, channel_id, user_id)
 
           end
         end
 
       else
         invalid_command_note = ":u7981: Invalid command! Type `/bulletin` or click on my icon see options."
-        notify(invalid_command_note, channel_id)
+        notify_user(invalid_command_note, channel_id, user_id)
 
       end 
     end

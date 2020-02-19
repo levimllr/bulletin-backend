@@ -41,7 +41,7 @@ class EventsController < ApplicationController
                   puts "##### BOT #####"
                   puts "###############"
                   intro_note = ":koko: Hello world!\n:u7533: This channel's ID is *#{channel_id}*.\n:sa: To set up your mass message schedule, make a copy of this Google sheet:\n#{@@sheet_link}"
-                  notify(intro_note, channel_id)
+                  notify_channel(intro_note, channel_id)
 
                 else 
                   puts '---------------------'

@@ -3,10 +3,19 @@ class ApplicationController < ActionController::API
   @@sheet_link = "https://docs.google.com/spreadsheets/d/1FNN6pRAMpxZPdT4reFGSqo_2EPYo6W-X9wLFmuWbWYU/edit?usp=sharing"
 
   # this helper posts a message to a channel
-  def notify(text, channel_id)
+  def notify_channel(text, channel_id)
     bot_slack_client.chat_postMessage(
       channel: channel_id,
       text: text
+    )
+  end
+
+  # this helper posts a message to a user
+  def notify_user(text, channel_id, user_id)
+    bot_slack_client.chat_postEphemeral(
+      channel: channel_id,
+      text: text,
+      user: user_id
     )
   end
 
